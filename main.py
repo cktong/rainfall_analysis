@@ -18,31 +18,31 @@ def main(start_datetime_str, num_steps, step_interval_minutes):
         
         # Construct the URL for the image
         url = f"http://www.weather.gov.sg/files/rainarea/50km/v2/dpsri_70km_{year}{month}{day}{time}0000dBR.dpsri.png"
-        try:
-            image = rainfall_analyzer.fetch_image(url)
-            
-            # Analyze rainfall
-            magnitude, latitudes, longitudes = rainfall_analyzer.analyze_rainfall(image)
-            
-            # Save GeoJSON
-            geojson_output_file = f"outputs/rainfall_magnitude_{year}{month}{day}{time}.geojson"
-            rainfall_analyzer.save_geojson(magnitude, latitudes, longitudes, geojson_output_file)
-            
-            # Plot magnitude
-            plot_output_file = f"outputs/rain_magnitude_plot_{year}{month}{day}{time}.png"
-            title = f'Rain Levels {year}/{month}/{day} Time: {time}'
-            rainfall_analyzer.plot_magnitude(magnitude, plot_output_file, title)
-
-            # Save HDF5 file and append new data
-            hdf5_output_file = "outputs/rainfall_magnitudes.h5"
-            rainfall_analyzer.save_hdf5(magnitude, latitudes, longitudes, datetime_str, hdf5_output_file)
+        # try:
+        image = rainfall_analyzer.fetch_image(url)
         
-        except Exception as e:
-            print(f"Failed to process data for {datetime_str}: {e}")
+        # Analyze rainfall
+        magnitude, latitudes, longitudes = rainfall_analyzer.analyze_rainfall(image)
+        
+        # Save GeoJSON
+        geojson_output_file = f"outputs/rainfall_magnitude_{year}{month}{day}{time}.geojson"
+        rainfall_analyzer.save_geojson(magnitude, latitudes, longitudes, geojson_output_file)
+        
+        # Plot magnitude
+        plot_output_file = f"outputs/rain_magnitude_plot_{year}{month}{day}{time}.png"
+        title = f'Rain Levels {year}/{month}/{day} Time: {time}'
+        rainfall_analyzer.plot_magnitude(magnitude, plot_output_file, title)
+
+        # Save HDF5 file and append new data
+        hdf5_output_file = "outputs/rainfall_magnitudes.h5"
+        rainfall_analyzer.save_hdf5(magnitude, latitudes, longitudes, datetime_str, hdf5_output_file)
+        
+        # except Exception as e:
+        #     print(f"Failed to process data for {datetime_str}: {e}")
 
 if __name__ == "__main__":
-    start_datetime_str = "2024-05-27 14:00"  # Enter the starting date and time here
-    num_steps = 12  # Number of steps to query and analyze
+    start_datetime_str = "2024-05-25 13:50"  # Enter the starting date and time here
+    num_steps = 5  # Number of steps to query and analyze
     step_interval_minutes = 5  # Interval between steps in minutes
     os.makedirs("outputs", exist_ok=True)
     main(start_datetime_str, num_steps, step_interval_minutes)

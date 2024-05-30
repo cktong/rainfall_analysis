@@ -98,20 +98,28 @@ class RainfallAnalyzer:
         print("Plot saved:", output_file)
 
     def save_hdf5(self, magnitudes, latitudes, longitudes, datetime_str, output_file):
+        datetime_bytes = np.string_(datetime_str)
+        
         if not os.path.exists(output_file):
             with h5py.File(output_file, 'w') as hf:
-                hf.create_dataset('magnitudes', data=magnitudes[np.newaxis, ...], maxshape=(None, magnitudes.shape[0], magnitudes.shape[1]))
+                hf.create_dataset('magnitudes', data=magnitudes[np.newaxis, ...], maxshape=(None, magnitudes.shape[0], magnitudes.shape[1]), chunks=True)
                 hf.create_dataset('latitudes', data=latitudes)
                 hf.create_dataset('longitudes', data=longitudes)
-                hf.create_dataset('datetimes', data=np.array([datetime_str], dtype='S'))
+                hf.create_dataset('datetimes', data=np.array([datetime_bytes], dtype='S'), maxshape=(None,), chunks=True)
         else:
             with h5py.File(output_file, 'a') as hf:
-                magnitudes_ds = hf['magnitudes']
-                magnitudes_ds.resize((magnitudes_ds.shape[0] + 1, magnitudes_ds.shape[1], magnitudes_ds.shape[2]))
-                magnitudes_ds[-1] = magnitudes
-
                 datetimes_ds = hf['datetimes']
-                datetimes_ds.resize((datetimes_ds.shape[0] + 1,))
-                datetimes_ds[-1] = np.string_(datetime_str)
+                existing_datetimes = datetimes_ds[:]
+                
+                if datetime_bytes in existing_datetimes:
+                    idx = np.where(existing_datetimes == datetime_bytes)[0][0]
+                    hf['magnitudes'][idx] = magnitudes
+                else:
+                    magnitudes_ds = hf['magnitudes']
+                    magnitudes_ds.resize((magnitudes_ds.shape[0] + 1, magnitudes_ds.shape[1], magnitudes_ds.shape[2]))
+                    magnitudes_ds[-1] = magnitudes
+
+                    datetimes_ds.resize((datetimes_ds.shape[0] + 1,))
+                    datetimes_ds[-1] = datetime_bytes
 
         print("HDF5 file saved/appended:", output_file)
