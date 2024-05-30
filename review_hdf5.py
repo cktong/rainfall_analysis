@@ -1,6 +1,8 @@
 import h5py
 import numpy as np
+from random import randint
 import matplotlib.pyplot as plt
+
 
 def review_hdf5(file_path, num_samples=5):
     with h5py.File(file_path, 'r') as hf:
@@ -25,6 +27,7 @@ def review_hdf5(file_path, num_samples=5):
 
         # Choose a specific time step to review
         time_step = 0  # Change this to review different time steps
+        time_step = randint(0,magnitudes.shape[0])
         datetime_str = datetimes[time_step].decode("utf-8")
         magnitude_data = magnitudes[time_step, :, :]
 

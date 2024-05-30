@@ -122,4 +122,4 @@ class RainfallAnalyzer:
                     datetimes_ds.resize((datetimes_ds.shape[0] + 1,))
                     datetimes_ds[-1] = datetime_bytes
 
-        print("HDF5 file saved/appended:", output_file)
+        print("HDF5 file saved/appended:",datetime_str, output_file)
